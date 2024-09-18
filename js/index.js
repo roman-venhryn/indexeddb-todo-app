@@ -142,22 +142,22 @@ const handleAddFormSubmit = (e) => {
     //adding task to indexedDB
     api.addTask(task).then(() => {
       selectors.addForm.reset();
-      api.getAllTasks(filters).then(tasksFromDB => updateStoredTasks(tasksFromDB));
+      fetchAllTasks(filters);
     });
   }
 }
 
 const handleFilterFormSubmit = (e) => {
   e.preventDefault();
-  api.getAllTasks(filters).then(tasksFromDB => updateStoredTasks(tasksFromDB));
+  fetchAllTasks(filters);
 }
 
 const updateTask = task => {
-  api.updateTask(task).then(api.getAllTasks(filters).then(tasksFromDB => updateStoredTasks(tasksFromDB)));
+  api.updateTask(task).then(fetchAllTasks(filters));
 }
 
 const deleteTask = id => {
-  api.deleteTask(id).then(api.getAllTasks(filters).then(tasksFromDB => updateStoredTasks(tasksFromDB)));
+  api.deleteTask(id).then(fetchAllTasks(filters));
 }
 
 //create DOM node for list
@@ -215,6 +215,14 @@ const updateStoredTasks = tasks => {
   renderList();
 }
 
+const fetchAllTasks = filters => {
+  if (filters.field === 'all') {
+    api.getAllTasks().then(tasksFromDB => updateStoredTasks(tasksFromDB));
+  } else {
+    api.getFilteredTasks(filters).then(tasksFromDB => updateStoredTasks(tasksFromDB));
+  }
+}
+
 //rendering list of tasks based off storedTasks
 const renderList = () => {
   utils.removeChildrenFromElement(selectors.tasksList);
@@ -239,7 +247,7 @@ const renderList = () => {
 const init = () => {
   findElements();
   addEventListeners();
-  api.getAllTasks(filters).then(tasksFromDB => updateStoredTasks(tasksFromDB));
+  fetchAllTasks(filters);
 }
 
 //initial connection to database and initialization

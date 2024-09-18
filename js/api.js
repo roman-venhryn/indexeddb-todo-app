@@ -23,7 +23,7 @@ export function connectToDB() {
 }
 
 
-export function getAllTasks(filters) {
+export function getAllTasks() {
   return new Promise((resolve, reject) => {
     connectToDB().then(db => {
       let transaction = db.transaction(['tasksStore'], 'readonly');
@@ -31,31 +31,41 @@ export function getAllTasks(filters) {
 
       let index = tasks.index('createdIndex');
 
-      if (filters.field === 'all') {
-        let request = index.getAll();
+      let request = index.getAll();
 
-        request.onsuccess = (event) => {
-          resolve(event.target.result);
-        }
+      request.onsuccess = (event) => {
+        resolve(event.target.result);
+      }
 
-        request.onerror = (error) => {
-          reject(`Failed to get all tasks from database: ${error}`);
-        }
-      } else {
+      request.onerror = (error) => {
+        reject(`Failed to get all tasks from database: ${error}`);
+      }
+    })
+  });
+}
 
-        let rows = [];
+export function getFilteredTasks(filters) {
+  return new Promise((resolve, reject) => {
+    connectToDB().then(db => {
+      let transaction = db.transaction(['tasksStore'], 'readonly');
+      let tasks = transaction.objectStore('tasksStore');
 
-        index.openCursor().onsuccess = (event) => {
-          let cursor = event.target.result;
+      let index = tasks.index('createdIndex');
 
-          if (cursor) {
-            rows = cursor.value[filters.field].includes(filters.query) ? [...rows, cursor.value] : rows;
-            cursor.continue();
-          } else {
-            resolve(rows);
-          }
+      let rows = [];
+
+      index.openCursor().onsuccess = (event) => {
+        let cursor = event.target.result;
+
+        if (cursor) {
+          rows = cursor.value[filters.field].includes(filters.query) ? [...rows, cursor.value] : rows;
+          cursor.continue();
+        } else {
+          resolve(rows);
         }
       }
+
+      index.openCursor().onerror = error => reject(error);
     })
   });
 }
