@@ -302,12 +302,12 @@ button:focus {
 }
 
 .task-item__controls .button-edit {
-  background-image: url('/img/edit.svg');
+  background-image: url('../img/edit.svg');
 
 }
 
 .task-item__controls .button-delete {
-  background-image: url('/img/bin.svg');
+  background-image: url('../img/bin.svg');
 }
 
 
