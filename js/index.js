@@ -38,7 +38,10 @@ const findElements = () => {
     filterFormFields: {
       queryInput: document.getElementById('filter-query'),
       fieldSelect: document.getElementById('filter-field'),
-    }
+    },
+
+    //toasts container
+    toastContainer: document.getElementById('toast-container')
   }
 }
 
@@ -102,13 +105,10 @@ const handleEditFormSubmit = (e, task) => {
     }
 
     //updating task to indexedDB
-    api.updateTask(newTask).then(() => {
-      selectors.editForm.reset();
-      api.getAllTasks(filters).then(tasksFromDB => {
-        updateStoredTasks(tasksFromDB);
-        closeEditForm();
-      });
-    });
+    updateTask(newTask);
+
+    selectors.editForm.reset();
+    closeEditForm();
   }
 }
 
@@ -140,10 +140,7 @@ const handleAddFormSubmit = (e) => {
     }
 
     //adding task to indexedDB
-    api.addTask(task).then(() => {
-      selectors.addForm.reset();
-      fetchAllTasks(filters);
-    });
+    addTask(task);
   }
 }
 
@@ -152,12 +149,31 @@ const handleFilterFormSubmit = (e) => {
   fetchAllTasks(filters);
 }
 
+const addTask = task => {
+  api.addTask(task).then(() => {
+    fetchAllTasks(filters);
+    sendToast('Task was added successfully!', 'success');
+  }).catch(() => {
+    sendToast('Failed to add task! Try again.', 'error');
+  }).finally(selectors.addForm.reset());
+}
+
 const updateTask = task => {
-  api.updateTask(task).then(fetchAllTasks(filters));
+  api.updateTask(task).then(() => {
+    fetchAllTasks(filters);
+    sendToast('Task was updated successfully!', 'success');
+  }).catch(() => {
+    sendToast('Failed to update task! Try again.', 'error');
+  });
 }
 
 const deleteTask = id => {
-  api.deleteTask(id).then(fetchAllTasks(filters));
+  api.deleteTask(id).then(() => {
+    fetchAllTasks(filters);
+    sendToast('Task was deleted successfully!', 'success');
+  }).catch(() => {
+    sendToast('Failed to delete task! Try again.', 'error');
+  });
 }
 
 //create DOM node for list
@@ -191,6 +207,17 @@ const getTaskListItem = (task) => {
   );
 }
 
+const sendToast = (message, type = "success", delay = 3000) => {
+  const toastElement = utils.newElement(
+    'p', { classList: `toast-message toast-${type}` },
+    message
+  );
+
+  selectors.toastContainer.append(toastElement);
+
+  setTimeout(() => { toastElement.remove() }, delay);
+}
+
 const openEditForm = (task) => {
 
   //populate edit form fields with tasks values
@@ -217,9 +244,9 @@ const updateStoredTasks = tasks => {
 
 const fetchAllTasks = filters => {
   if (filters.field === 'all') {
-    api.getAllTasks().then(tasksFromDB => updateStoredTasks(tasksFromDB));
+    api.getAllTasks().then(tasksFromDB => updateStoredTasks(tasksFromDB)).catch(sendToast('Failed to fetch tasks from DB!', 'error'));
   } else {
-    api.getFilteredTasks(filters).then(tasksFromDB => updateStoredTasks(tasksFromDB));
+    api.getFilteredTasks(filters).then(tasksFromDB => updateStoredTasks(tasksFromDB)).catch(sendToast('Failed to fetch tasks from DB!', 'error'));
   }
 }
 
@@ -253,4 +280,5 @@ const init = () => {
 //initial connection to database and initialization
 api.connectToDB().then(init()).catch(error => {
   console.warn(error);
+  sendToast('Failed to connect to IndexedDB!', error)
 });

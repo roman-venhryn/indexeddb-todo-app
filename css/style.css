@@ -4,6 +4,7 @@
   --destrutive: #ef4444;
   --outline: #0a0a0a;
   --card-border: #e5e5e5;
+  --success: #37FF8B;
 }
 
 body {
@@ -307,4 +308,54 @@ button:focus {
 
 .task-item__controls .button-delete {
   background-image: url('/img/bin.svg');
+}
+
+
+
+
+
+#toast-container {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+
+  z-index: 100;
+
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  justify-content: flex-end;
+}
+
+.toast-message {
+  padding: 1rem 2rem;
+  border-radius: .5rem;
+
+  font-size: 1rem;
+  font-weight: normal;
+  line-height: 1.25;
+
+  animation: animate-toast .5s ease-in-out forwards;
+}
+
+.toast-success {
+  color: white;
+  background-color: var(--success);
+}
+
+.toast-error {
+  color: white;
+  background-color: var(--destrutive);
+}
+
+@keyframes animate-toast {
+  0% {
+    transform: translateY(150%);
+    opacity: 0
+  }
+
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
