@@ -244,9 +244,9 @@ const updateStoredTasks = tasks => {
 
 const fetchAllTasks = filters => {
   if (filters.field === 'all') {
-    api.getAllTasks().then(tasksFromDB => updateStoredTasks(tasksFromDB)).catch(sendToast('Failed to fetch tasks from DB!', 'error'));
+    api.getAllTasks().then(tasksFromDB => updateStoredTasks(tasksFromDB)).catch((error) => { sendToast('Failed to fetch tasks from DB!', 'error'); console.warn(error) });
   } else {
-    api.getFilteredTasks(filters).then(tasksFromDB => updateStoredTasks(tasksFromDB)).catch(sendToast('Failed to fetch tasks from DB!', 'error'));
+    api.getFilteredTasks(filters).then(tasksFromDB => updateStoredTasks(tasksFromDB)).catch((error) => { sendToast('Failed to fetch tasks from DB!', 'error'); console.warn(error) });
   }
 }
 
