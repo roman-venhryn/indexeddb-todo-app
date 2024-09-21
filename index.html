@@ -10,34 +10,34 @@
   <body>
     <div id="overlay" class="hidden">
       <div id="overlay-container" class="card">
-        <h2>Edit task</h2>
-        <form id="edit-form" name="edit-form" onsubmit="return false;">
+        <h2 id="overlay-form-heading">Edit task</h2>
+        <form id="task-form" name="task-form" onsubmit="return false;">
           <div class="row">
-            <label class="sr-only" for="edit-title"> Title: </label>
+            <label class="sr-only" for="task-title"> Title: </label>
             <input
-              id="edit-title"
-              name="edit-title"
+              id="task-title"
+              name="task-title"
               type="text"
               required
               placeholder="Title"
+              defaultValue=""
             />
-            <label class="sr-only" for="edit-dueDate"> Due date: </label>
-            <input id="edit-dueDate" required name="edit-dueDate" type="date" />
+            <label class="sr-only" for="task-dueDate"> Due date: </label>
+            <input id="task-dueDate" required name="task-dueDate" type="date" />
           </div>
 
-          <label class="sr-only" for="edit-description">
+          <label class="sr-only" for="task-description">
             <span>Description:</span>
           </label>
           <textarea
-            id="edit-description"
-            name="edit-description"
+            id="task-description"
+            name="task-description"
             placeholder="Description"
+            defaultValue=""
           ></textarea>
 
-          <button type="submit" class="button-primary" id="edit-form-submit">
-            Save
-          </button>
-          <button type="button" class="button-secondary" id="edit-form-cancel">
+          <button type="submit" class="button-primary">Save</button>
+          <button type="button" class="button-secondary" id="task-form-cancel">
             Cancel
           </button>
         </form>
@@ -48,60 +48,35 @@
         <header>
           <h1>Get Things Done!</h1>
 
-          <form id="add-form" name="add-form" onsubmit="return false;">
-            <div class="row">
-              <label class="sr-only" for="title"> Title: </label>
-              <input
-                id="title"
-                required
-                name="title"
-                type="text"
-                placeholder="Title"
-              />
-              <label class="sr-only" for="dueDate"> Due date: </label>
-              <input id="dueDate" required name="dueDate" type="date" />
-            </div>
-
-            <label class="sr-only" for="description">
-              <span>Description:</span>
-            </label>
-            <textarea
-              id="description"
-              name="description"
-              placeholder="Description"
-            ></textarea>
-
-            <button type="submit" class="button-primary" id="add-form-submit">
-              Add
-            </button>
-          </form>
+          <button id="add-task-button" class="button-primary">Add Task</button>
         </header>
 
-        <ul id="tasks-list"></ul>
+        <main>
+          <ul id="tasks-list"></ul>
+        </main>
+
         <footer>
-          <div id="filter">
-            <form id="filter-form" onsubmit="return false;">
-              <label for="filter-query" class="sr-only">Filter query</label>
-              <input
-                id="filter-query"
-                name="filter-query"
-                type="text"
-                placeholder="Filter..."
-                disabled
-              />
-              <select id="filter-field">
-                <option value="all">All</option>
-                <option value="title">Title</option>
-                <option value="dueDate">Due date</option>
-              </select>
-              <button class="button-primary">Filter</button>
-            </form>
-          </div>
+          <form id="filter-form" onsubmit="return false;">
+            <label for="filter-query" class="sr-only">Filter query</label>
+            <input
+              id="filter-query"
+              name="filter-query"
+              type="text"
+              placeholder="Filter..."
+              disabled
+            />
+            <select id="filter-field">
+              <option value="all">All</option>
+              <option value="title">Title</option>
+              <option value="dueDate">Due date</option>
+            </select>
+            <button type="submit" class="button-primary">Filter</button>
+          </form>
         </footer>
       </section>
       <div id="toast-container"></div>
     </div>
 
-    <script type="module" src="js/index.js"></script>
+    <script type="module" src="./js/index.js"></script>
   </body>
 </html>

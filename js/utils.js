@@ -22,6 +22,10 @@ export const removeChildrenFromElement = (element) => {
   }
 }
 
-export const formatDateDDMMYYY = (date) => {
-  return date.toLocaleDateString('en-GB').split('/').join('.');
+export const formatDateForDB = (date) => {
+  return date.split('-').reverse().join('.');
+}
+
+export const formatDateForDatepicker = (date) => {
+  return date.split('.').reverse().join('-');
 }

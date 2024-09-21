@@ -58,7 +58,7 @@ export function getFilteredTasks(filters) {
         let cursor = event.target.result;
 
         if (cursor) {
-          rows = cursor.value[filters.field].includes(filters.query) ? [...rows, cursor.value] : rows;
+          rows = (new RegExp(filters.query, 'i').test(cursor.value[filters.field])) ? [...rows, cursor.value] : rows;
           cursor.continue();
         } else {
           resolve(rows);
@@ -78,7 +78,6 @@ export function addTask(data) {
       let request = tasks.add(data);
 
       request.onsuccess = (event) => {
-        console.log('Task was successfully added!', event.target.result);
         resolve(event.target.result);
       }
 
@@ -97,7 +96,6 @@ export function deleteTask(id) {
       let request = tasks.delete(id);
 
       request.onsuccess = (event) => {
-        console.log('Task was successfully deleted!');
         resolve(event.target.result);
       }
 
@@ -116,7 +114,6 @@ export function updateTask(data) {
       let request = tasks.put(data);
 
       request.onsuccess = (event) => {
-        console.log('Task was successfully updated!', event.target.result);
         resolve(event.target.result);
       }
 

@@ -60,6 +60,29 @@ button:focus {
   background-color: var(--destrutive);
 }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+}
+
 #overlay {
   position: fixed;
   top: 0;
@@ -111,66 +134,38 @@ button:focus {
 #app-container header {
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 1em;
 }
 
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border-width: 0;
-}
-
-.text-center {
+#app-container header h1 {
   text-align: center;
 }
 
-.row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: .5rem;
-}
-
-#add-form,
-#edit-form {
+#task-form {
   width: 100%;
   display: flex;
   flex-direction: column;
   gap: .5rem;
 }
 
-#add-form input,
-#edit-form input {
+#task-form input {
   height: 2rem;
   padding: .5rem;
   border: 1px solid var(--primary);
   border-radius: .25rem;
 }
 
-#add-form textarea,
-#edit-form textarea {
+#task-form textarea {
   padding: .5rem;
   border-radius: .25rem;
 }
 
-#add-form input.error,
-#edit-form input.error {
+#task-form input.error {
   border: 2px solid var(--destrutive);
 }
 
-#add-form input:focus-visible,
-#add-form textarea:focus-visible,
-#edit-form input:focus-visible,
-#edit-form textarea:focus-visible,
-#filter-form input:focus-visible,
-#filter-form select:focus-visible {
+#task-form input:focus-visible,
+#task-form textarea:focus-visible {
   outline: 2px solid var(--outline);
   border-radius: 3px;
 }
@@ -180,28 +175,26 @@ button:focus {
   display: flex;
   height: 2rem;
   gap: .5rem;
+
+  font-size: .75rem;
 }
 
 #filter-form input,
 #filter-form select {
-  font-size: .75rem;
   padding: .5rem;
   border: 1px solid var(--primary);
   border-radius: .25rem;
 }
 
-#filter-form button {
-  height: 2rem;
-  font-size: .75rem;
+#filter-form input:focus-visible,
+#filter-form select:focus-visible {
+  outline: 2px solid var(--outline);
+  border-radius: 3px;
 }
 
 
-
-
-
-
 #tasks-list {
-  margin-top: 1rem;
+  margin: 1rem 0;
   display: flex;
   flex-direction: column;
   flex-shrink: 1;

@@ -28,7 +28,7 @@ To run the application locally, follow these steps:
 
 ## Usage
 
-To use this application, simply enter title and due date for your task (these are required) and press "Add" button. This will add the task to the list and store it in database.
+To use this application, click "Add Task" button, enter title and due date for your task (these are required) and press "Save" button. This will add the task to the list and store it in the database.
 
 You can add as many tasks as you need.
 

@@ -10,28 +10,22 @@ let filters = {
 
 const findElements = () => {
   selectors = {
-    //addForm elements
-    addForm: document.getElementById('add-form'),
-    addFormInputs: {
-      titleInput: document.getElementById('title'),
-      descriptionInput: document.getElementById('description'),
-      dueDateInput: document.getElementById('dueDate'),
-    },
+    //overlay
+    overlay: document.getElementById('overlay'),
+    overlayFormHeading: document.getElementById('overlay-form-heading'),
+
+    //task form elements
+    taskForm: document.getElementById('task-form'),
+    titleInput: document.getElementById('task-title'),
+    dueDateInput: document.getElementById('task-dueDate'),
+    descriptionInput: document.getElementById('task-description'),
+    taskFormCancel: document.getElementById('task-form-cancel'),
+
+    //add task button 
+    addTaskButton: document.getElementById('add-task-button'),
 
     //tasks list element
     tasksList: document.getElementById('tasks-list'),
-
-    //overlay
-    overlay: document.getElementById('overlay'),
-
-    //edit form elements
-    editForm: document.getElementById('edit-form'),
-    editFormInputs: {
-      editTitleInput: document.getElementById('edit-title'),
-      editDescriptionInput: document.getElementById('edit-description'),
-      editDueDateInput: document.getElementById('edit-dueDate'),
-    },
-    editFormCancel: document.getElementById('edit-form-cancel'),
 
     //filter form elements
     filterForm: document.getElementById('filter-form'),
@@ -46,16 +40,14 @@ const findElements = () => {
 }
 
 const addEventListeners = () => {
-
-  //add form submit
-  selectors.addForm.addEventListener('submit', handleAddFormSubmit);
-
-  //filter form submit
-  selectors.filterForm.addEventListener('submit', handleFilterFormSubmit);
+  //add task button click
+  selectors.addTaskButton.addEventListener('click', (e) => openTaskForm(e));
 
   //filter form select change
   selectors.filterFormFields.fieldSelect.addEventListener('change', (e) => {
-    filters = { query: '', field: e.target.value };
+
+    filters = { query: '', field: e.currentTarget.value };
+    selectors.filterFormFields.queryInput.value = filters.query;
 
     //reset query and disable query input if 'All' is selected
     if (filters.field === 'all') {
@@ -64,89 +56,108 @@ const addEventListeners = () => {
     } else {
       selectors.filterFormFields.queryInput.disabled = false;
     }
+
+    fetchAllTasks(filters);
   });
 
   //filter form query input change
   selectors.filterFormFields.queryInput.addEventListener('input', (e) => {
-    filters = { ...filters, query: e.target.value };
+    filters = { ...filters, query: e.currentTarget.value };
   });
+
+  //filter form submit
+  selectors.filterForm.addEventListener('submit', (e) => handleFilterFormSubmit(e));
 
   //closing the edit form modal
-  selectors.editFormCancel.addEventListener('click', closeEditForm);
+  selectors.taskFormCancel.addEventListener('click', closeTaskForm);
   selectors.overlay.addEventListener('click', (e) => {
-    if (e.target.id === 'overlay') closeEditForm();
+    if (e.target === e.currentTarget) closeTaskForm();
   });
 }
 
-// functions for  handling form sumbitting
-const handleEditFormSubmit = (e, task) => {
+const handleTaskFormSubmit = (e, task) => {
   e.preventDefault();
 
-  const data = Object.fromEntries(new FormData(e.target));
+  const data = Object.fromEntries(new FormData(e.currentTarget));
 
   //set .error class if the field is empty
-  for (const [, value] of Object.entries(e.target)) {
+  for (const [, value] of Object.entries(e.currentTarget)) {
     if (value.tagName === 'INPUT') value.classList.toggle('error', !Boolean(value.value));
   }
 
   //check if there is enough data to create a task (title and due date)
   //if not enough - return
   //if enough - add task to DB and trigger render
-  if (!data['edit-title'] || !data['edit-dueDate']) {
+  if (!data['task-title'] || !data['task-dueDate']) {
     console.log('not enough data!');
   } else {
 
-    //create new task from input fields
-    const newTask = {
-      ...task,
-      title: data['edit-title'],
-      description: data['edit-description'],
-      dueDate: data['edit-dueDate']
+    if (task) {
+      //create updated task
+      const newTask = {
+        ...task,
+        title: data['task-title'],
+        description: data['task-description'],
+        dueDate: utils.formatDateForDB(data['task-dueDate'])
+      }
+
+      //updating task to indexedDB
+      updateTask(newTask);
+    } else {
+      //create new task from input fields
+      const newTask = {
+        id: crypto.randomUUID(), //create unique ID with window.crypto
+        title: data['task-title'],
+        description: data['task-description'],
+        dueDate: utils.formatDateForDB(data['task-dueDate']),
+        isCompleted: false,
+        createdAt: Date.now()
+      }
+
+      //adding task to indexedDB
+      addTask(newTask);
     }
 
-    //updating task to indexedDB
-    updateTask(newTask);
-
-    selectors.editForm.reset();
-    closeEditForm();
-  }
-}
-
-const handleAddFormSubmit = (e) => {
-  e.preventDefault();
-
-  const data = Object.fromEntries(new FormData(e.target));
-
-  //set .error class if the field is empty
-  for (const [, value] of Object.entries(e.target)) {
-    if (value.tagName === 'INPUT') value.classList.toggle('error', !Boolean(value.value));
+    selectors.taskForm.reset();
+    closeTaskForm(e);
   }
 
-  //check if there is enough data to create a task (title and due date)
-  //if not enough - return
-  //if enough - add task to DB and trigger render
-  if (!data.title || !data.dueDate) {
-    console.log('not enough data!');
-  } else {
 
-    //create new task from input fields
-    const task = {
-      id: crypto.randomUUID(), //create unique ID with window.crypto
-      title: data.title,
-      description: data.description,
-      dueDate: data.dueDate,
-      isCompleted: false,
-      createdAt: Date.now()
-    }
-
-    //adding task to indexedDB
-    addTask(task);
-  }
 }
 
 const handleFilterFormSubmit = (e) => {
   e.preventDefault();
   fetchAllTasks(filters);
+}
+
+const openTaskForm = (e, task) => {
+  selectors.taskForm.reset();
+
+  if (task) {
+    selectors.overlayFormHeading.textContent = 'Edit task';
+
+    //populate edit form fields with tasks values
+    selectors.titleInput.value = task.title;
+    selectors.dueDateInput.value = utils.formatDateForDatepicker(task.dueDate);
+    selectors.descriptionInput.value = task.description;
+
+    //add onsubmit eventlistener
+    selectors.taskForm.onsubmit = (e) => handleTaskFormSubmit(e, task);
+  } else {
+    selectors.overlayFormHeading.textContent = 'Add new task';
+
+    //add onsubmit eventlistener
+    selectors.taskForm.onsubmit = (e) => handleTaskFormSubmit(e);
+  }
+
+  //show form after everything is set up
+  selectors.overlay.classList.toggle('hidden', false);
+  selectors.titleInput.focus();
+}
+
+const closeTaskForm = () => {
+  selectors.taskForm.reset();
+  selectors.overlay.classList.toggle('hidden', true);
 }
 
 const addTask = task => {
@@ -155,7 +166,7 @@ const addTask = task => {
     sendToast('Task was added successfully!', 'success');
   }).catch(() => {
     sendToast('Failed to add task! Try again.', 'error');
-  }).finally(selectors.addForm.reset());
+  });
 }
 
 const updateTask = task => {
@@ -176,6 +187,30 @@ const deleteTask = id => {
   });
 }
 
+const updateStoredTasks = tasks => {
+  storedTasks = [...tasks];
+  renderList();
+}
+
+const fetchAllTasks = filters => {
+  if (filters.field === 'all') {
+    api.getAllTasks().then(tasksFromDB => updateStoredTasks(tasksFromDB)).catch((error) => { sendToast('Failed to fetch tasks from DB!', 'error'); console.warn(error) });
+  } else {
+    api.getFilteredTasks(filters).then(tasksFromDB => updateStoredTasks(tasksFromDB)).catch((error) => { sendToast('Failed to fetch tasks from DB!', 'error'); console.warn(error) });
+  }
+}
+
+const sendToast = (message, type = "success", delay = 3000) => {
+  const toastElement = utils.newElement(
+    'p', { classList: `toast-message toast-${type}` },
+    message
+  );
+
+  selectors.toastContainer.append(toastElement);
+
+  setTimeout(() => { toastElement.remove() }, delay);
+}
+
 //create DOM node for list
 const getTaskListItem = (task) => {
   return utils.newElement(
@@ -194,7 +229,7 @@ const getTaskListItem = (task) => {
     ),
     utils.newElement('div', { classList: 'task-item__controls' },
       //controls children
-      utils.newElement('button', { classList: 'button-secondary button-edit', onclick: () => openEditForm(task) },
+      utils.newElement('button', { classList: 'button-secondary button-edit', onclick: (e) => openTaskForm(e, task) },
         ''
       ),
       utils.newElement('button', {
@@ -205,49 +240,6 @@ const getTaskListItem = (task) => {
       ),
     )
   );
-}
-
-const sendToast = (message, type = "success", delay = 3000) => {
-  const toastElement = utils.newElement(
-    'p', { classList: `toast-message toast-${type}` },
-    message
-  );
-
-  selectors.toastContainer.append(toastElement);
-
-  setTimeout(() => { toastElement.remove() }, delay);
-}
-
-const openEditForm = (task) => {
-
-  //populate edit form fields with tasks values
-  selectors.editFormInputs.editTitleInput.value = task.title;
-  selectors.editFormInputs.editDueDateInput.value = task.dueDate;
-  selectors.editFormInputs.editDescriptionInput.value = task.description;
-
-  //add onsubmit eventlistener
-  selectors.editForm.onsubmit = (e) => handleEditFormSubmit(e, task);
-
-  //show form after everything is set up
-  selectors.overlay.classList.toggle('hidden', false);
-}
-
-const closeEditForm = () => {
-  selectors.editForm.reset();
-  selectors.overlay.classList.toggle('hidden', true);
-}
-
-const updateStoredTasks = tasks => {
-  storedTasks = [...tasks];
-  renderList();
-}
-
-const fetchAllTasks = filters => {
-  if (filters.field === 'all') {
-    api.getAllTasks().then(tasksFromDB => updateStoredTasks(tasksFromDB)).catch((error) => { sendToast('Failed to fetch tasks from DB!', 'error'); console.warn(error) });
-  } else {
-    api.getFilteredTasks(filters).then(tasksFromDB => updateStoredTasks(tasksFromDB)).catch((error) => { sendToast('Failed to fetch tasks from DB!', 'error'); console.warn(error) });
-  }
 }
 
 //rendering list of tasks based off storedTasks
