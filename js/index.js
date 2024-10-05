@@ -217,7 +217,7 @@ const getTaskListItem = (task) => {
     'li', { classList: `task-item ${task.isCompleted ? 'completed' : ''}` },
     utils.newElement('label', {},
       utils.newElement('input', {
-        type: 'checkbox', name: 'checked', classList: 'sr-only', checked: task.isCompleted, onclick: () => updateTask({ ...task, isCompleted: !task.isCompleted })
+        type: 'checkbox', name: 'checked', hidden: true, checked: task.isCompleted, onclick: () => updateTask({ ...task, isCompleted: !task.isCompleted })
       }),
     ),
     //li children
@@ -258,8 +258,13 @@ const renderList = () => {
 
   //transform tasks to list items
   const tasksListItems = storedTasks.map(task => getTaskListItem(task));
-  //append tasks to list
-  tasksListItems.forEach(task => selectors.tasksList.append(task));
+
+  const fragment = document.createDocumentFragment();
+  //append tasks to fragment
+  fragment.append(...tasksListItems);
+
+  //append fragment to list
+  selectors.tasksList.append(fragment);
 };
 
 
